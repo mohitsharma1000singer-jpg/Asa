@@ -1,0 +1,88 @@
+
+
+
+name: Mohit_Strength_Success_2026
+on: [push, workflow_dispatch]
+
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Create Structure and Config
+        run: |
+          mkdir -p app/src/main/java/com/mohit/test
+          
+          # 1. settings.gradle - इसमें रिपॉजिटरी डालना अनिवार्य है
+          cat << 'EOF' > settings.gradle
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "MohitStrength"
+          include ':app'
+          EOF
+
+          # 2. Root build.gradle - प्लगइन वर्जन के साथ
+          cat << 'EOF' > build.gradle
+          plugins {
+              id 'com.android.application' version '8.2.2' apply false
+          }
+          EOF
+
+          # 3. app/build.gradle - असली इंजन
+          cat << 'EOF' > app/build.gradle
+          plugins {
+              id 'com.android.application'
+          }
+          android {
+              namespace 'com.mohit.test'
+              compileSdk 34
+              defaultConfig {
+                  applicationId 'com.mohit.test'
+                  minSdk 26
+                  targetSdk 34
+                  versionCode 1
+                  versionName '1.0'
+              }
+          }
+          EOF
+
+          # 4. Manifest and Java
+          cat << 'EOF' > app/src/main/AndroidManifest.xml
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <application android:label="MohitSuccess"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application>
+          </manifest>
+          EOF
+
+          cat << 'EOF' > app/src/main/java/com/mohit/test/MainActivity.java
+          package com.mohit.test;
+          import android.os.Bundle;
+          import android.app.Activity;
+          public class MainActivity extends Activity { protected void onCreate(Bundle s) { super.onCreate(s); } }
+          EOF
+
+      - name: Build APK
+        run: |
+          gradle wrapper --gradle-version 8.5
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
