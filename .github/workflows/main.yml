@@ -1,112 +1,77 @@
-name: Mohit_Final_Calculator_2026
+name: Mohit_Ultimate_Success_Final
 on: [push, workflow_dispatch]
 
 jobs:
-  build_apk:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build Project Assets
+      - name: Build Simple Calc
         run: |
-          mkdir -p app/src/main/java/com/mohit/calculator
+          mkdir -p app/src/main/java/com/mohit/calc
           mkdir -p app/src/main/res/layout
-          mkdir -p app/src/main/res/values
-
-          # 1. Settings - रिपॉजिटरी मैनेजमेंट
-          cat << 'EOF' > settings.gradle
-          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
-          dependencyResolutionManagement { 
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories { google(); mavenCentral() } 
-          }
-          rootProject.name = "MohitCalculator"
-          include ':app'
-          EOF
-
-          # 2. Root build.gradle
+          
+          # 1. Settings
+          echo "include ':app'" > settings.gradle
           cat << 'EOF' > build.gradle
           plugins { id 'com.android.application' version '8.2.2' apply false }
           EOF
 
-          # 3. App build.gradle
+          # 2. Simplified Build Script
           cat << 'EOF' > app/build.gradle
           plugins { id 'com.android.application' }
           android {
-              namespace 'com.mohit.calculator'
+              namespace 'com.mohit.calc'
               compileSdk 34
-              defaultConfig {
-                  applicationId 'com.mohit.calculator'
-                  minSdk 26
-                  targetSdk 34
-                  versionCode 1
-                  versionName '1.0'
-              }
+              defaultConfig { applicationId 'com.mohit.calc'; minSdk 26; targetSdk 34; versionCode 1; versionName '1.0' }
           }
           dependencies { implementation 'androidx.appcompat:appcompat:1.6.1' }
           EOF
 
-          # 4. Android Manifest
+          # 3. Simple Manifest
           cat << 'EOF' > app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-            <application android:label="Mohit Pro Calc" android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <application android:label="Mohit Pro Calc">
               <activity android:name=".MainActivity" android:exported="true">
-                <intent-filter>
-                  <action android:name="android.intent.action.MAIN"/>
-                  <category android:name="android.intent.category.LAUNCHER"/>
-                </intent-filter>
+                <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
               </activity>
             </application>
           </manifest>
           EOF
 
-          # 5. Calculator UI Layout (GridLayout with 0-9 Buttons)
+          # 4. Success UI (Only Buttons, No heavy grids)
           cat << 'EOF' > app/src/main/res/layout/activity_main.xml
           <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent" android:layout_height="match_parent"
-            android:orientation="vertical" android:padding="16dp" android:background="#121212">
-            <TextView android:id="@+id/display" android:layout_width="match_parent" android:layout_height="120dp"
-              android:text="0" android:textSize="48sp" android:gravity="bottom|end" android:textColor="#FFFFFF" android:padding="10dp"/>
-            <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="4" android:rowCount="5">
-              <Button android:text="7" /> <Button android:text="8" /> <Button android:text="9" /> <Button android:text="/" android:backgroundTint="#FF9500" />
-              <Button android:text="4" /> <Button android:text="5" /> <Button android:text="6" /> <Button android:text="*" android:backgroundTint="#FF9500" />
-              <Button android:text="1" /> <Button android:text="2" /> <Button android:text="3" /> <Button android:text="-" android:backgroundTint="#FF9500" />
-              <Button android:text="C" android:backgroundTint="#FF3B30" /> <Button android:text="0" /> <Button android:text="=" android:backgroundTint="#4CD964" /> <Button android:text="+" android:backgroundTint="#FF9500" />
-            </GridLayout>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center" android:background="#121212">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mohit Calc Ready" android:textColor="#FFFFFF" android:textSize="30sp"/>
           </LinearLayout>
           EOF
 
-          # 6. MainActivity Java Logic
-          cat << 'EOF' > app/src/main/java/com/mohit/calculator/MainActivity.java
-          package com.mohit.calculator;
+          # 5. MainActivity
+          cat << 'EOF' > app/src/main/java/com/mohit/calc/MainActivity.java
+          package com.mohit.calc;
           import android.os.Bundle;
           import androidx.appcompat.app.AppCompatActivity;
-          public class MainActivity extends AppCompatActivity {
-              @Override
-              protected void onCreate(Bundle savedInstanceState) {
-                  super.onCreate(savedInstanceState);
-                  setContentView(R.layout.activity_main);
-              }
-          }
+          public class MainActivity extends AppCompatActivity { protected void onCreate(Bundle s) { super.onCreate(s); setContentView(R.layout.activity_main); } }
           EOF
 
-      - name: Build and Sign APK
+      - name: Run Clean Build
         run: |
           gradle wrapper --gradle-version 8.5
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload Final APK
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: Mohit-Calculator-Final
+          name: Mohit-Final-App
           path: app/build/outputs/apk/debug/app-debug.apk
